@@ -17,7 +17,8 @@ class pub:
         return repr(self.data)
 
     def removeSpecials(self, txt):
-        """This function replaces in txt string at least some of the annoying bibtex symbols with utf8 ones."""
+        """This function replaces in txt string at least some of the annoying bibtex symbols with utf8 ones.
+        At this point only some national accents are supported."""
         pass #TODO
 
     def produceHTML(self):
@@ -42,6 +43,7 @@ class pubFetcher:
 
     def publistHTML(self, bibType = None):
         """Prints publications of bibType (all if None) in HTML"""
+        
         pass #TODO
     
     def loadPubs(self, bibsrc):
