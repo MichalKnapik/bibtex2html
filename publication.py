@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re 
-
+from symbolmap import transformRules
 
 class pub:
     """A publication. 
@@ -56,8 +56,10 @@ class pubFetcher:
                 pubtype = startpub.groups()[0].upper() #ARTICLE, etc.
                 start = startpub.span()[1] #one position after '{'
                 pubdata = self.fetchPub(self.txt[start:])
-                pubdata['bibtexentrytype'] = pubtype
-                self.publist.append(pub(pubdata))
+                if not pubdata is None:
+                    pubdata['bibtexentrytype'] = pubtype
+                    self.publist.append(pub(pubdata))
+                print pubdata
                 startpub = pubFetcher.startpubregex.search(self.txt, start)
             
     def fetchPub(self, inptxt):
@@ -77,13 +79,13 @@ class pubFetcher:
             if lbrackets == rbrackets: #actual publication data gathering starts
                 pubtxt = inptxt[:(ctr-1)] 
                 pubtxt = re.compile(r'\s+').sub(' ', pubtxt) #trim whitespaces
-                fields = pubtxt.split(',')
                 pubdata = dict()
-                pubdata['bibtexentrylabel'] = fields[0] #bibtex entry label
-                for field in fields[1:-1]:
+                pubdata['bibtexentrylabel'], pubtxt = pubtxt.split(',', 1) #bibtex entry label
+                fields = re.split(r'[\"\}],', pubtxt)
+                for field in fields[:-1]:
                     key, value = field.split('=',1)
-                    key, value = key.strip(), value.strip()
-                    pubdata[key] = value[1:-1] #remove brackets or quotation marks
+                    key, value = key.strip(), re.sub(r'\\\s+', ' ', re.sub(r'[\"\{]|\s*\}','', value.strip()))
+                    pubdata[key] = value
                 return pubdata
 
         return None
