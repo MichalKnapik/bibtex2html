@@ -2,8 +2,27 @@
 
 import re 
 
+
 class pub:
-    pass
+    """A publication. 
+
+    The data dictionary contains all details of publication. 
+    There are two special entries:
+    data[bibtexentrylabel] (the name of entry in .bib),
+    data[bibtexentrytype]  (ARTICLE, INPROCEEDINGS, etc.)."""
+    def __init__(self, data):
+        self.data = data #dictionary with publication details
+
+    def __repr__(self):
+        return repr(self.data)
+
+    def removeSpecials(self, txt):
+        """This function replaces in txt string at least some of the annoying bibtex symbols with utf8 ones."""
+        pass #TODO
+
+    def produceHTML(self):
+        pass #TODO
+
 
 class BibException(Exception):
     def __init__(self, value):
@@ -11,23 +30,32 @@ class BibException(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 class pubFetcher:
 
-    startpubregex = re.compile(r'\s*@\w+\s*{', re.IGNORECASE) 
+    startpubregex = re.compile(r'\s*@(\w+)\s*{', re.IGNORECASE) 
 
     def __init__(self):
         self.txt = None
+        self.publist = [] #fetched publications
         self.suppressAt = False #allows or disallows for '@' symbol in bibtex
+
+    def publistHTML(self, bibType = None):
+        """Prints publications of bibType (all if None) in HTML"""
+        pass #TODO
     
     def loadPubs(self, bibsrc):
+        """Loads publications from bibTeX file bibsrc."""
         with open(bibsrc, 'r') as f:
             self.txt = f.read()
             start = 0
             startpub = pubFetcher.startpubregex.search(self.txt, start)
             while not startpub is None:
+                pubtype = startpub.groups()[0].upper() #ARTICLE, etc.
                 start = startpub.span()[1] #one position after '{'
-                self.fetchPub(self.txt[start:])
-
+                pubdata = self.fetchPub(self.txt[start:])
+                pubdata['bibtexentrytype'] = pubtype
+                self.publist.append(pub(pubdata))
                 startpub = pubFetcher.startpubregex.search(self.txt, start)
             
     def fetchPub(self, inptxt):
