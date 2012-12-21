@@ -31,7 +31,25 @@ class pub:
         return cleanData
             
     def produceHTML(self):
-        pass #TODO
+        result = ""
+        cleanData = self.replaceSpecials()
+        if cleanData.has_key('pubauthor'):
+            result += ' <span class="pubauthor"> ' + cleanData['author'] + ': </span> '
+        if cleanData.has_key('title'):
+            if cleanData.has_key('uri'):
+                result += '<a href="{0}" class="puburi"> {1} </a>'.format(cleanData['uri'], cleanData['title'])
+            else:
+                result += ' <span class="pubtitle"> ' + cleanData['title'] + '</span>'
+
+        result += '<span class="pubdetails">'
+        for label in ['booktitle', 'journal', 'pages', 'city', 'country', 'year']:
+            if cleanData.has_key(label):
+                result +=  ", " 
+                if label == 'pages':
+                    result += 'pp.'
+                result += cleanData[label]
+        result += ' </span> '
+        return result
 
 class BibException(Exception):
     def __init__(self, value):
@@ -50,7 +68,20 @@ class pubFetcher:
 
     def publistHTML(self, bibType = None):
         """Prints publications of bibType (all if None) in HTML"""
-        pass #TODO
+        #sort publications by year
+        def sorter(publ):
+            if publ.has_key('year'):
+                year = re.search(r'[0-9]+', publ['year'])
+                if not year == None:
+                    start, end = year.span()
+                    return int(publ['year'][start:end])
+            else:
+                return 0
+        self.publist = sorted(self.publist, key = lambda publ: sorter(publ.data), reverse = True)
+        #-------------------------
+        for publication in self.publist:
+            if (bibType == None) or (publication.data['bibtexentrytype'] == bibType):
+                print "<li>" + publication.produceHTML() + "</li>"
     
     def loadPubs(self, bibsrc):
         """Loads publications from bibTeX file bibsrc."""
@@ -65,7 +96,7 @@ class pubFetcher:
                 if not pubdata is None:
                     pubdata['bibtexentrytype'] = pubtype
                     self.publist.append(pub(pubdata))
-                print pub(pubdata).replaceSpecials()
+
                 startpub = pubFetcher.startpubregex.search(self.txt, start)
             
     def fetchPub(self, inptxt):
@@ -88,7 +119,9 @@ class pubFetcher:
                 pubdata = dict()
                 pubdata['bibtexentrylabel'], pubtxt = pubtxt.split(',', 1) #bibtex entry label
                 fields = re.split(r'[\"\}],', pubtxt)
-                for field in fields[:-1]:
+                if len(fields[-1].strip()) == 0:
+                    fields = fields[:-1]
+                for field in fields:
                     key, value = field.split('=',1)[0].strip(), field.split('=',1)[1]
                     pubdata[key] = value
                 return pubdata
