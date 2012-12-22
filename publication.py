@@ -36,7 +36,7 @@ class pub:
             result += ' <span class="pubauthor"> ' + cleanData['author'] + ': </span> '
         if cleanData.has_key('title'):
             if cleanData.has_key('uri'):
-                result += '<a href="{0}" class="puburi"> {1} </a>'.format(cleanData['uri'], cleanData['title'])
+                result += '<a href="{0}" class="puburi">{1}</a>'.format(cleanData['uri'], cleanData['title'])
             else:
                 result += ' <span class="pubtitle"> ' + cleanData['title'] + '</span>'
 
