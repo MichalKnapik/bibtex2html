@@ -14,11 +14,11 @@ if __name__ == "__main__":
         fetcher.loadPubs(src)
 
         #an example use of fetcher
-        print '<h1 class="journpub">Journal publications</h1><ul>'
+        print '<h2 class="journpub">Journal publications</h2><ul>'
         fetcher.publistHTML("ARTICLE")
         print "</ul>" 
 
-        print '<h1 class="procpub">Conference publications</h1><ul>'
+        print '<h2 class="procpub">Conference publications</h2><ul>'
         fetcher.publistHTML("INPROCEEDINGS")
         print "</ul>" 
         #------------------------
